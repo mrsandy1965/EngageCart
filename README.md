@@ -1,7 +1,17 @@
-# Instructions
+# EngageCart
 
-1. Use SQLITE3 for database storage implementation
-1. Use Prisma for ORM
-1. Implement at least one full CRUD RESTful API
-1. Deploy it on Render for backend and vercel for frontend
-1. Resolve CORS issue if needed after deployment
+Interactive E-Commerce Platform with micro-experiences & real-time features.
+
+## Project Vision
+- Engaging UX
+- Real-time inventory & alerts
+- Personalized recommendations
+- Transparent pricing
+
+## Features
+1. Real-time inventory & urgency alerts
+2. Product comparison charts
+3. Personalized homepage & offers
+4. Dynamic pricing
+5. Trust & brand signals
+6. Cart & checkout system
