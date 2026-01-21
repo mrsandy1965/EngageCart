@@ -15,3 +15,7 @@ Interactive E-Commerce Platform with micro-experiences & real-time features.
 4. Dynamic pricing
 5. Trust & brand signals
 6. Cart & checkout system
+
+## DevOps
+- Dockerized frontend & backend
+- Environment-agnostic setup
