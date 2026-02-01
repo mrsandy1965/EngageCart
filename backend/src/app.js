@@ -1,24 +1,14 @@
-const express = require('express');
-const cors = require('cors');
+import app from "./app.js";
+import connectDB from "./config/db.js";
+import dotenv from "dotenv";
+dotenv.config();
+import authRoutes from "./routes/auth.routes.js";
 
-const app = express();
+const PORT = process.env.PORT || 5001;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+connectDB();
+app.use("/auth", authRoutes);
 
-// Health Check Route
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: 'ShopSmart Backend is running',
-    timestamp: new Date().toISOString()
-  });
+app.listen(PORT, () => {
+  console.log(`🚀 Backend running on port ${PORT}`);
 });
-
-// Root Route (optional, just to show something)
-app.get('/', (req, res) => {
-  res.send('ShopSmart Backend Service');
-});
-
-module.exports = app;
