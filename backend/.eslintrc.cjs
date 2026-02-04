@@ -3,7 +3,14 @@ module.exports = {
     node: true,
     es2021: true,
   },
+  parserOptions: {
+    ecmaVersion: 2021,
+    sourceType: "module",
+  },
   extends: ["eslint:recommended"],
+  rules: {
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_|next|req|res" }],
+  },
   overrides: [
     {
       files: ["**/*.test.js", "**/*.spec.js"],

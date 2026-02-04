@@ -2,6 +2,7 @@
   "name": "shopsmart-backend",
   "version": "1.0.0",
   "description": "Backend API for ShopSmart",
+  "type": "module",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -14,7 +15,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.22.1",
-    "jsonwebtoken": "^9.0.3"
+    "express-validator": "^7.3.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
