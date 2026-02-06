@@ -11,10 +11,6 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
 
-  useEffect(() => {
-    loadProduct();
-  }, [id]);
-
   const loadProduct = async () => {
     setLoading(true);
     try {
@@ -28,6 +24,10 @@ const ProductDetailPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadProduct();
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import './Auth.css';
 
 const Register = () => {
@@ -67,7 +67,7 @@ const Register = () => {
     try {
       await register(formData.name, formData.email, formData.password);
       navigate('/login');
-    } catch (error) {
+    } catch {
       // Error toast handled in context
     } finally {
       setIsLoading(false);

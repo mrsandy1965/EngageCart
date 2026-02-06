@@ -16,10 +16,6 @@ const ProductsPage = () => {
   });
   const [filters, setFilters] = useState({});
 
-  useEffect(() => {
-    loadProducts();
-  }, [pagination.page, filters]);
-
   const loadProducts = async () => {
     setLoading(true);
     try {
@@ -42,6 +38,10 @@ const ProductsPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadProducts();
+  }, [pagination.page, filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);

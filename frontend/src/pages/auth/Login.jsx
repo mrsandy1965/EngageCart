@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import './Auth.css';
 
 const Login = () => {
@@ -55,7 +55,7 @@ const Login = () => {
     try {
       await login(formData.email, formData.password);
       navigate('/');
-    } catch (error) {
+    } catch {
       // Error toast handled in context
     } finally {
       setIsLoading(false);

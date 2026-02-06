@@ -11,10 +11,6 @@ const ProductFilters = ({ onFilterChange }) => {
     search: ''
   });
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
   const loadCategories = async () => {
     try {
       const data = await productService.getCategories();
@@ -23,6 +19,12 @@ const ProductFilters = ({ onFilterChange }) => {
       console.error('Failed to load categories:', error);
     }
   };
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      loadCategories();
+    });
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
