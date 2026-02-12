@@ -1,6 +1,6 @@
 import { useCart } from '../../hooks/useCart';
 import { useNavigate } from 'react-router-dom';
-import './Cart.css';
+import '../../components/cart/Cart.css';
 
 const CartPage = () => {
   const { cart, loading, cartTotal, updateQuantity, removeItem, clearCart } = useCart();
