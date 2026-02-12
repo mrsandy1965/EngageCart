@@ -1,5 +1,5 @@
 import express from 'express';
-import { auth } from '../middleware/auth.middleware.js';
+import authMiddleware from '../middleware/auth.middleware.js';
 import { validate } from '../middleware/validate.middleware.js';
 import {
     getCart,
@@ -16,7 +16,7 @@ import {
 const router = express.Router();
 
 // All cart routes require authentication
-router.use(auth);
+router.use(authMiddleware);
 
 /**
  * @route   GET /api/cart
