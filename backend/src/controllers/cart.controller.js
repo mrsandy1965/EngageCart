@@ -17,10 +17,10 @@ export const getCart = async (req, res) => {
             data: cart
         });
     } catch (error) {
+        console.error('Error in getCart:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error',
-            error: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -87,10 +87,10 @@ export const addToCart = async (req, res) => {
             data: cart
         });
     } catch (error) {
+        console.error('Error in addToCart:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error',
-            error: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -146,10 +146,10 @@ export const updateQuantity = async (req, res) => {
             data: cart
         });
     } catch (error) {
+        console.error('Error in updateQuantity:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error',
-            error: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -180,10 +180,10 @@ export const removeItem = async (req, res) => {
             data: cart
         });
     } catch (error) {
+        console.error('Error in removeItem:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error',
-            error: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -208,10 +208,10 @@ export const clearCart = async (req, res) => {
             data: cart
         });
     } catch (error) {
+        console.error('Error in clearCart:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error',
-            error: error.message
+            message: 'Internal server error'
         });
     }
 };

@@ -17,7 +17,7 @@ const CartPage = () => {
     );
   }
 
-  if (!cart || cart.items.length === 0) {
+  if (!cart || !Array.isArray(cart.items) || cart.items.length === 0) {
     return (
       <div className="container">
         <div className="empty-cart">
@@ -79,7 +79,7 @@ const CartPage = () => {
                   <h3>{item.product.name}</h3>
                   {item.product.category && (
                     <span className="category-badge">
-                      {item.product.category.name}
+                      {item.product.category.name || item.product.category}
                     </span>
                   )}
                   <p className="cart-item-price">${item.price.toFixed(2)}</p>

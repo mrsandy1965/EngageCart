@@ -23,6 +23,9 @@ const AddToCartButton = ({ product }) => {
     setIsAdding(true);
     try {
       await addToCart(product._id, 1);
+    } catch (error) {
+      // Error already handled in CartContext with toast
+      console.error('Failed to add to cart:', error);
     } finally {
       setIsAdding(false);
     }

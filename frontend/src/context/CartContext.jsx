@@ -1,18 +1,22 @@
 import { createContext, useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import cartService from '../services/cartService';
 import toast from 'react-hot-toast';
 
 const CartContext = createContext(null);
 
 const CartProvider = ({ children }) => {
+  const { isAuthenticated } = useAuth();
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    queueMicrotask(() => {
+    if (isAuthenticated) {
       loadCart();
-    });
-  }, []);
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
 
   const loadCart = async () => {
     try {
