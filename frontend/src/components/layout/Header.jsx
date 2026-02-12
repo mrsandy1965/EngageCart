@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import CartIcon from '../cart/CartIcon';
 import './Layout.css';
 
 const Header = () => {
@@ -19,6 +20,7 @@ const Header = () => {
           </nav>
 
           <div className="auth-actions">
+            {isAuthenticated && <CartIcon />}
             {isAuthenticated ? (
               <>
                 <span className="user-name">Hi, {user?.name}</span>

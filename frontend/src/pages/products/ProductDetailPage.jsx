@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import productService from '../../services/productService';
+import AddToCartButton from '../../components/cart/AddToCartButton';
 import toast from 'react-hot-toast';
 import './Products.css';
 
@@ -106,12 +107,7 @@ const ProductDetailPage = () => {
             </div>
           )}
 
-          <button 
-            className="btn btn-primary btn-large"
-            disabled={product.stock === 0}
-          >
-            {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-          </button>
+          <AddToCartButton product={product} />
         </div>
       </div>
     </div>
