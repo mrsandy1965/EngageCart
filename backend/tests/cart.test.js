@@ -1,7 +1,7 @@
+import { jest, describe, it, expect } from '@jest/globals';
 import Cart from '../src/models/cart.model.js';
 import Product from '../src/models/product.model.js';
 import {
-    getCart,
     addToCart,
     updateQuantity,
     removeItem,
