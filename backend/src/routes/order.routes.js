@@ -1,5 +1,6 @@
 import express from 'express';
 import auth from '../middleware/auth.middleware.js';
+import adminMiddleware from '../middleware/admin.middleware.js';
 import validate from '../middleware/validate.middleware.js';
 import {
     createOrder,
@@ -27,8 +28,8 @@ router.get('/', getOrders);
 // Get order by ID
 router.get('/:id', getOrderById);
 
-// Update order status (admin only - middleware can be added later)
-router.put('/:id/status', updateOrderStatusValidation, validate, updateOrderStatus);
+// Update order status (admin only)
+router.put('/:id/status', adminMiddleware, updateOrderStatusValidation, validate, updateOrderStatus);
 
 // Cancel order
 router.put('/:id/cancel', cancelOrder);

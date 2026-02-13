@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import orderService from '../../services/orderService';
+import toast from 'react-hot-toast';
 import '../../styles/Order.css';
 
 const OrderHistoryPage = () => {
@@ -20,6 +21,8 @@ const OrderHistoryPage = () => {
       setPagination(response.data.pagination);
     } catch (error) {
       console.error('Failed to load orders:', error);
+      const message = error.response?.data?.message || 'Failed to load orders';
+      toast.error(message);
     } finally {
       setLoading(false);
     }

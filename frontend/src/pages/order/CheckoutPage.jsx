@@ -45,12 +45,18 @@ const CheckoutPage = () => {
     setSubmitting(true);
 
     try {
+      const paymentData = {
+        method: paymentInfo.method
+      };
+      
+      // Only include last4 if card number is valid (for card payments)
+      if (paymentInfo.cardNumber && paymentInfo.cardNumber.length >= 4) {
+        paymentData.last4 = paymentInfo.cardNumber.slice(-4);
+      }
+
       const orderData = {
         shippingAddress,
-        paymentInfo: {
-          method: paymentInfo.method,
-          last4: paymentInfo.cardNumber.slice(-4)
-        }
+        paymentInfo: paymentData
       };
 
       const response = await orderService.createOrder(orderData);
