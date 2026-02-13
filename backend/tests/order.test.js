@@ -228,7 +228,7 @@ describe('Order Controller', () => {
 
             Order.findById = jest.fn().mockReturnValue({
                 populate: jest.fn().mockReturnThis(),
-                populate: jest.fn().mockResolvedValue(mockOrder)
+                then: async (callback) => callback(mockOrder)
             });
 
             await getOrderById(req, res);
@@ -254,7 +254,7 @@ describe('Order Controller', () => {
 
             Order.findById = jest.fn().mockReturnValue({
                 populate: jest.fn().mockReturnThis(),
-                populate: jest.fn().mockResolvedValue(null)
+                then: async (callback) => callback(null)
             });
 
             await getOrderById(req, res);

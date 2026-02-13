@@ -8,7 +8,8 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest --passWithNoTests",
-    "lint": "eslint . --ext .js,.ts,.jsx,.tsx"
+    "lint": "eslint . --ext .js,.ts,.jsx,.tsx",
+    "seed": "node seed.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
