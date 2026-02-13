@@ -10,7 +10,6 @@
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest --passWithNoTests",
     "lint": "eslint . --ext .js,.ts,.jsx,.tsx",
     "seed": "node seed.js"
-    "lint": "eslint . --ext .js,.ts,.jsx,.tsx"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
