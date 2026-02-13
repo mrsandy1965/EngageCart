@@ -133,6 +133,7 @@ const CartPage = () => {
             </div>
 
             <button onClick={() => navigate('/checkout')} className="btn btn-primary btn-large checkout-btn">
+            <button className="btn btn-primary btn-large checkout-btn">
               Proceed to Checkout
             </button>
 
