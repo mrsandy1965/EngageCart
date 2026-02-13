@@ -11,10 +11,6 @@ const OrderDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
 
-  useEffect(() => {
-    loadOrder();
-  }, [id]);
-
   const loadOrder = async () => {
     try {
       setLoading(true);
@@ -28,6 +24,10 @@ const OrderDetailPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadOrder();
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCancelOrder = async () => {
     if (!window.confirm('Are you sure you want to cancel this order?')) {
