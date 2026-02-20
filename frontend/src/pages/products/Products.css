@@ -134,6 +134,66 @@
   color: #742a2a;
 }
 
+.stock.low-stock {
+  background: #fef3c7;
+  color: #92400e;
+  animation: pulse-stock 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-stock {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Live viewer bubble */
+.live-viewers {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #4a5568;
+  padding: 0.5rem 0.75rem;
+  background: #ebf8ff;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #48bb78;
+  border-radius: 50%;
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* Urgency banner */
+.urgency-banner {
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fff5f5, #fed7d7);
+  border-left: 4px solid #fc8181;
+  color: #742a2a;
+  font-size: 0.9rem;
+  animation: slide-in 0.3s ease-out;
+}
+
+.urgency-banner.out-of-stock-banner {
+  background: linear-gradient(135deg, #f7fafc, #e2e8f0);
+  border-left-color: #a0aec0;
+  color: #4a5568;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .description h3 {
   margin: 0 0 1rem 0;
   color: #2d3748;

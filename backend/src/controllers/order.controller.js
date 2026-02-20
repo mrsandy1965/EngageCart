@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Order from '../models/order.model.js';
 import Cart from '../models/cart.model.js';
 import Product from '../models/product.model.js';
+import { getIO } from '../socket.js';
 
 // Create new order from cart
 export const createOrder = async (req, res) => {
@@ -84,6 +85,24 @@ export const createOrder = async (req, res) => {
 
         // Populate product references in response (after commit)
         await order.populate('items.product', 'name category');
+
+        // Emit stock-change events for each ordered product
+        try {
+            const io = getIO();
+            for (const item of order.items) {
+                const updatedProduct = await Product.findById(item.product._id).select('stock');
+                if (updatedProduct) {
+                    io.to(`product:${item.product._id}`).emit('stock-change', {
+                        productId: item.product._id.toString(),
+                        stock: updatedProduct.stock,
+                        lowStock: updatedProduct.stock > 0 && updatedProduct.stock <= 5,
+                        outOfStock: updatedProduct.stock === 0
+                    });
+                }
+            }
+        } catch (socketErr) {
+            console.error('[Socket] Failed to emit stock-change on createOrder:', socketErr.message);
+        }
 
         res.status(201).json({
             success: true,
@@ -286,6 +305,24 @@ export const cancelOrder = async (req, res) => {
         }
 
         await session.commitTransaction();
+
+        // Emit stock-restore events for each item
+        try {
+            const io = getIO();
+            for (const item of order.items) {
+                const updatedProduct = await Product.findById(item.product).select('stock');
+                if (updatedProduct) {
+                    io.to(`product:${item.product}`).emit('stock-change', {
+                        productId: item.product.toString(),
+                        stock: updatedProduct.stock,
+                        lowStock: updatedProduct.stock > 0 && updatedProduct.stock <= 5,
+                        outOfStock: updatedProduct.stock === 0
+                    });
+                }
+            }
+        } catch (socketErr) {
+            console.error('[Socket] Failed to emit stock-change on cancelOrder:', socketErr.message);
+        }
 
         res.json({
             success: true,
