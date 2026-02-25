@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import Order from '../models/order.model.js';
 import Cart from '../models/cart.model.js';
 import Product from '../models/product.model.js';
@@ -6,36 +5,29 @@ import { getIO } from '../socket.js';
 
 // Create new order from cart
 export const createOrder = async (req, res) => {
-    const session = await mongoose.startSession();
-
     try {
-        session.startTransaction();
-
         const { shippingAddress, paymentInfo } = req.body;
 
         // Get user's cart
-        const cart = await Cart.findOne({ user: req.user.id }).session(session).populate('items.product');
+        const cart = await Cart.findOne({ user: req.user.id }).populate('items.product');
 
         if (!cart || cart.items.length === 0) {
-            await session.abortTransaction();
             return res.status(400).json({
                 success: false,
                 message: 'Cart is empty'
             });
         }
 
-        // Validate stock availability for all items within transaction
+        // Validate stock availability for all items (check all before touching anything)
         for (const item of cart.items) {
-            const product = await Product.findById(item.product._id).session(session);
+            const product = await Product.findById(item.product._id);
             if (!product) {
-                await session.abortTransaction();
                 return res.status(404).json({
                     success: false,
                     message: `Product ${item.product.name} not found`
                 });
             }
             if (product.stock < item.quantity) {
-                await session.abortTransaction();
                 return res.status(400).json({
                     success: false,
                     message: `Insufficient stock for ${product.name}. Only ${product.stock} available`
@@ -43,7 +35,7 @@ export const createOrder = async (req, res) => {
             }
         }
 
-        // Prepare order items (snapshot product data)
+        // Prepare order items (snapshot product data at purchase time)
         const orderItems = cart.items.map(item => ({
             product: item.product._id,
             name: item.product.name,
@@ -55,38 +47,42 @@ export const createOrder = async (req, res) => {
         // Calculate total amount
         const totalAmount = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-        // Create order within transaction
-        const [order] = await Order.create([{
+        // Create order document
+        const order = await Order.create({
             user: req.user.id,
             items: orderItems,
             shippingAddress,
             paymentInfo,
             totalAmount,
             status: 'pending'
-        }], { session });
+        });
 
-        // Update product stock within transaction
-        for (const item of cart.items) {
-            await Product.findByIdAndUpdate(
-                item.product._id,
-                { $inc: { stock: -item.quantity } },
-                { session }
-            );
+        // Decrement stock for each item (manual rollback on failure)
+        const decremented = [];
+        try {
+            for (const item of cart.items) {
+                await Product.findByIdAndUpdate(
+                    item.product._id,
+                    { $inc: { stock: -item.quantity } }
+                );
+                decremented.push({ id: item.product._id, qty: item.quantity });
+            }
+        } catch (stockErr) {
+            // Rollback: restore any stock already decremented, delete the orphan order
+            for (const d of decremented) {
+                await Product.findByIdAndUpdate(d.id, { $inc: { stock: d.qty } });
+            }
+            await Order.findByIdAndDelete(order._id);
+            throw stockErr;
         }
 
-        // Clear user's cart within transaction
-        await Cart.findByIdAndUpdate(
-            cart._id,
-            { items: [] },
-            { session }
-        );
+        // Clear user's cart
+        await Cart.findByIdAndUpdate(cart._id, { items: [] });
 
-        await session.commitTransaction();
-
-        // Populate product references in response (after commit)
+        // Populate product references in response
         await order.populate('items.product', 'name category');
 
-        // Emit stock-change events for each ordered product
+        // Emit real-time stock-change events
         try {
             const io = getIO();
             for (const item of order.items) {
@@ -110,18 +106,15 @@ export const createOrder = async (req, res) => {
             data: order
         });
     } catch (error) {
-        await session.abortTransaction();
         console.error('Error in createOrder:', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error'
         });
-    } finally {
-        session.endSession();
     }
 };
 
-// Get user's orders
+// Get user's orders (paginated)
 export const getOrders = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -197,7 +190,6 @@ export const getOrderById = async (req, res) => {
 // Update order status (admin only)
 export const updateOrderStatus = async (req, res) => {
     try {
-        // Admin authorization check
         if (!req.user || req.user.role !== 'admin') {
             return res.status(403).json({
                 success: false,
@@ -208,7 +200,6 @@ export const updateOrderStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        // Validate status
         const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({
@@ -229,7 +220,7 @@ export const updateOrderStatus = async (req, res) => {
         const previousStatus = order.status;
         order.status = status;
 
-        // If changing to cancelled, restore stock
+        // Restore stock if cancelling
         if (status === 'cancelled' && previousStatus !== 'cancelled') {
             for (const item of order.items) {
                 await Product.findByIdAndUpdate(
@@ -255,37 +246,28 @@ export const updateOrderStatus = async (req, res) => {
     }
 };
 
-// Cancel order
+// Cancel order (user-initiated)
 export const cancelOrder = async (req, res) => {
-    const session = await mongoose.startSession();
-
     try {
-        session.startTransaction();
-
         const { id } = req.params;
 
-        const order = await Order.findById(id).session(session);
+        const order = await Order.findById(id);
 
         if (!order) {
-            await session.abortTransaction();
             return res.status(404).json({
                 success: false,
                 message: 'Order not found'
             });
         }
 
-        // Verify user owns the order
         if (order.user.toString() !== req.user.id) {
-            await session.abortTransaction();
             return res.status(403).json({
                 success: false,
                 message: 'Access denied'
             });
         }
 
-        // Only allow cancelling pending or confirmed orders
         if (!['pending', 'confirmed'].includes(order.status)) {
-            await session.abortTransaction();
             return res.status(400).json({
                 success: false,
                 message: `Cannot cancel order with status: ${order.status}`
@@ -293,20 +275,17 @@ export const cancelOrder = async (req, res) => {
         }
 
         order.status = 'cancelled';
-        await order.save({ session });
+        await order.save();
 
-        // Restore product stock within transaction
+        // Restore product stock
         for (const item of order.items) {
             await Product.findByIdAndUpdate(
                 item.product,
-                { $inc: { stock: item.quantity } },
-                { session }
+                { $inc: { stock: item.quantity } }
             );
         }
 
-        await session.commitTransaction();
-
-        // Emit stock-restore events for each item
+        // Emit real-time stock-restore events
         try {
             const io = getIO();
             for (const item of order.items) {
@@ -330,13 +309,10 @@ export const cancelOrder = async (req, res) => {
             data: order
         });
     } catch (error) {
-        await session.abortTransaction();
         console.error('Error in cancelOrder:', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error'
         });
-    } finally {
-        session.endSession();
     }
 };

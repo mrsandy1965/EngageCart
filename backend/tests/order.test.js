@@ -76,13 +76,10 @@ describe('Order Controller', () => {
             };
 
             Cart.findOne = jest.fn().mockReturnValue({
-                session: jest.fn().mockReturnThis(),
                 populate: jest.fn().mockResolvedValue(mockCart)
             });
 
-            Product.findById = jest.fn().mockReturnValue({
-                session: jest.fn().mockResolvedValue(mockProduct)
-            });
+            Product.findById = jest.fn().mockResolvedValue(mockProduct);
             Product.findByIdAndUpdate = jest.fn();
             Cart.findByIdAndUpdate = jest.fn();
 
@@ -90,7 +87,7 @@ describe('Order Controller', () => {
                 _id: 'order123',
                 user: 'user123',
                 items: [{
-                    product: 'prod123',
+                    product: { _id: 'prod123' },
                     name: 'Test Product',
                     quantity: 2,
                     price: 100,
@@ -99,7 +96,7 @@ describe('Order Controller', () => {
                 totalAmount: 200,
                 populate: jest.fn().mockResolvedValue({})
             };
-            Order.create = jest.fn().mockResolvedValue([mockOrder]);
+            Order.create = jest.fn().mockResolvedValue(mockOrder);
 
             await createOrder(req, res);
 
@@ -124,7 +121,6 @@ describe('Order Controller', () => {
             };
 
             Cart.findOne = jest.fn().mockReturnValue({
-                session: jest.fn().mockReturnThis(),
                 populate: jest.fn().mockResolvedValue({ items: [] })
             });
 
@@ -171,13 +167,10 @@ describe('Order Controller', () => {
             };
 
             Cart.findOne = jest.fn().mockReturnValue({
-                session: jest.fn().mockReturnThis(),
                 populate: jest.fn().mockResolvedValue(mockCart)
             });
 
-            Product.findById = jest.fn().mockReturnValue({
-                session: jest.fn().mockResolvedValue(mockProduct)
-            });
+            Product.findById = jest.fn().mockResolvedValue(mockProduct);
 
             await createOrder(req, res);
 
@@ -359,9 +352,7 @@ describe('Order Controller', () => {
                 save: jest.fn()
             };
 
-            Order.findById = jest.fn().mockReturnValue({
-                session: jest.fn().mockResolvedValue(mockOrder)
-            });
+            Order.findById = jest.fn().mockResolvedValue(mockOrder);
             Product.findByIdAndUpdate = jest.fn();
 
             await cancelOrder(req, res);
@@ -392,9 +383,7 @@ describe('Order Controller', () => {
                 status: 'shipped'
             };
 
-            Order.findById = jest.fn().mockReturnValue({
-                session: jest.fn().mockResolvedValue(mockOrder)
-            });
+            Order.findById = jest.fn().mockResolvedValue(mockOrder);
 
             await cancelOrder(req, res);
 
