@@ -1,0 +1,123 @@
+.admin-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: calc(100vh - 64px);
+}
+
+.admin-sidebar {
+  background: #1e293b;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0;
+  gap: 0.25rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.admin-brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0 1.25rem 1.25rem;
+  border-bottom: 1px solid #334155;
+  margin-bottom: 0.75rem;
+  color: #f8fafc;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.admin-nav-link {
+  display: block;
+  padding: 0.7rem 1.25rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.admin-nav-link:hover {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+.admin-nav-link.active {
+  background: #334155;
+  color: #60a5fa;
+  border-left-color: #60a5fa;
+}
+
+.back-link {
+  margin-top: auto;
+  border-top: 1px solid #334155;
+  padding-top: 1rem;
+  color: #64748b;
+}
+
+.admin-content {
+  padding: 2rem;
+  background: #f8fafc;
+  min-height: 100%;
+}
+
+/* Shared admin page styles */
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.admin-page-header h1 {
+  font-size: 1.5rem;
+  color: #1e293b;
+  margin: 0;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.08);
+}
+
+.admin-table th {
+  background: #f1f5f9;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.admin-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.875rem;
+  color: #334155;
+}
+
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: #f8fafc; }
+
+.btn-sm {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+.btn-sm:hover { opacity: 0.85; }
+.btn-edit { background: #dbeafe; color: #1e40af; }
+.btn-delete { background: #fee2e2; color: #991b1b; margin-left: 0.4rem; }
+.btn-save { background: #667eea; color: white; }
