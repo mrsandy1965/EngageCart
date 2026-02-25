@@ -7,7 +7,8 @@ import {
     getOrders,
     getOrderById,
     updateOrderStatus,
-    cancelOrder
+    cancelOrder,
+    getAllOrdersAdmin
 } from '../controllers/order.controller.js';
 import {
     createOrderValidation,
@@ -24,6 +25,9 @@ router.post('/', createOrderValidation, validate, createOrder);
 
 // Get user's orders (paginated)
 router.get('/', getOrders);
+
+// Get ALL orders — admin only
+router.get('/admin/all', adminMiddleware, getAllOrdersAdmin);
 
 // Get order by ID
 router.get('/:id', getOrderById);

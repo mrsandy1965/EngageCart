@@ -3,6 +3,35 @@ import Cart from '../models/cart.model.js';
 import Product from '../models/product.model.js';
 import { getIO } from '../socket.js';
 
+// Get all orders (admin only — paginated)
+export const getAllOrdersAdmin = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        const orders = await Order.find()
+            .populate('user', 'name email')
+            .populate('items.product', 'name')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        const total = await Order.countDocuments();
+
+        res.json({
+            success: true,
+            data: {
+                orders,
+                pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+            }
+        });
+    } catch (error) {
+        console.error('Error in getAllOrdersAdmin:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
 // Create new order from cart
 export const createOrder = async (req, res) => {
     try {
