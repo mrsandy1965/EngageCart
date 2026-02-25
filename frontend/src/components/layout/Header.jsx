@@ -18,6 +18,11 @@ const Header = () => {
             <Link to="/" className="nav-link">Home</Link>
             <Link to="/products" className="nav-link">Products</Link>
             {isAuthenticated && <Link to="/orders" className="nav-link">Orders</Link>}
+            {user?.role === 'admin' && (
+              <Link to="/admin" className="nav-link" style={{ color: '#60a5fa', fontWeight: 600 }}>
+                ⚙️ Admin
+              </Link>
+            )}
           </nav>
 
           <div className="auth-actions">
