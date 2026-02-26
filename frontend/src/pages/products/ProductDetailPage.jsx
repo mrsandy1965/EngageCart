@@ -34,7 +34,7 @@ const ProductDetailPage = () => {
   // Live real-time data from socket
   const { viewers, stock, lowStock, outOfStock } = useProductSocket(
     product?._id,
-    product?.stock ?? 0
+    product?.stock ?? null    // null = "product not loaded yet"; hook seeds once on first real value
   );
 
   // Back-in-stock toast: fires when stock goes from 0 → > 0
@@ -112,7 +112,7 @@ const ProductDetailPage = () => {
             <span className="price">${product.price?.toFixed(2)}</span>
 
             {/* Live stock badge */}
-            {outOfStock ? (
+            {stock === null ? null : outOfStock ? (
               <span className="stock out-of-stock">Out of stock</span>
             ) : lowStock ? (
               <span className="stock low-stock">⚡ Only {stock} left!</span>

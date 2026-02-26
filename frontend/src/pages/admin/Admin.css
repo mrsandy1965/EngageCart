@@ -108,6 +108,7 @@
   border-radius: 6px;
   font-size: 0.875rem;
   color: #334155;
+  background: #ffffff;
   outline: none;
   transition: border-color 0.15s;
 }
