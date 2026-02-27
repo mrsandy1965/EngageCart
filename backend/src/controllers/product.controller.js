@@ -47,11 +47,12 @@ export const getAllProducts = async (req, res) => {
             maxPrice,
             search,
             sort = '-createdAt',
-            inStock
+            inStock,
+            showAll    // admin flag: skips isActive filter
         } = req.query;
 
         // Build filter query
-        const filter = { isActive: true };
+        const filter = showAll === 'true' ? {} : { isActive: true };
 
         // Category filter
         if (category) {

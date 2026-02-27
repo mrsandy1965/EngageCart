@@ -13,7 +13,8 @@ const AdminProducts = () => {
     setLoading(true);
     try {
       const res = await getAdminProducts();
-      setProducts(res.data?.products || []);
+      // API returns { data: [...products], pagination: {...} }
+      setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }, []);

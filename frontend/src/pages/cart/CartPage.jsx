@@ -86,22 +86,22 @@ const CartPage = () => {
                 </div>
 
                 <div className="cart-item-actions">
-                  <div className="quantity-controls">
+                  <div className="qty-stepper">
                     <button
+                      className="qty-btn"
                       onClick={() => handleQuantityChange(item.product._id, item.quantity - 1)}
                       disabled={item.quantity <= 1}
-                      className="quantity-btn"
-                    >
-                      −
-                    </button>
-                    <span className="quantity">{item.quantity}</span>
+                      aria-label="Decrease quantity"
+                    >−</button>
+                    <div className="qty-divider" />
+                    <span className="qty-value">{item.quantity}</span>
+                    <div className="qty-divider" />
                     <button
+                      className="qty-btn"
                       onClick={() => handleQuantityChange(item.product._id, item.quantity + 1)}
                       disabled={item.quantity >= item.product.stock}
-                      className="quantity-btn"
-                    >
-                      +
-                    </button>
+                      aria-label="Increase quantity"
+                    >+</button>
                   </div>
 
                   <p className="item-subtotal">
@@ -110,10 +110,10 @@ const CartPage = () => {
 
                   <button
                     onClick={() => handleRemove(item.product._id)}
-                    className="btn-remove"
-                  >
-                    Remove
-                  </button>
+                    className="btn-trash"
+                    aria-label="Remove item"
+                    title="Remove"
+                  >🗑️</button>
                 </div>
               </div>
             ))}

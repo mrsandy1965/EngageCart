@@ -16,21 +16,18 @@ const ProductsPage = () => {
   });
   const [filters, setFilters] = useState({});
 
-  const loadProducts = async () => {
+  const loadProducts = async (page, activeFilters) => {
     setLoading(true);
     try {
-      const params = {
-        page: pagination.page,
-        limit: pagination.limit,
-        ...filters
-      };
+      // Strip empty / falsy values so they don't pollute the query string
+      const cleanFilters = Object.fromEntries(
+        Object.entries(activeFilters).filter(([, v]) => v !== '' && v != null)
+      );
 
+      const params = { page, limit: 12, ...cleanFilters };
       const data = await productService.getProducts(params);
       setProducts(data.data || []);
-      setPagination(prev => ({
-        ...prev,
-        ...data.pagination
-      }));
+      setPagination(prev => ({ ...prev, ...data.pagination }));
     } catch (error) {
       toast.error('Failed to load products');
       console.error(error);
@@ -40,12 +37,13 @@ const ProductsPage = () => {
   };
 
   useEffect(() => {
-    loadProducts();
-  }, [pagination.page, filters]); // eslint-disable-line react-hooks/exhaustive-deps
+    loadProducts(pagination.page, filters);
+  }, [pagination.page, filters]);
 
   const handleFilterChange = (newFilters) => {
+    // Reset to page 1 first, then update filters — triggers one clean load
+    setPagination(prev => ({ ...prev, page: 1 }));
     setFilters(newFilters);
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1
   };
 
   const handlePageChange = (newPage) => {

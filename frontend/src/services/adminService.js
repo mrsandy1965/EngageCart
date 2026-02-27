@@ -8,8 +8,8 @@ export const updateOrderStatus = (id, status) =>
     api.put(`/orders/${id}/status`, { status }).then(r => r.data);
 
 // ── Products ─────────────────────────────────────────────
-export const getAdminProducts = (page = 1, limit = 20) =>
-    api.get(`/products?page=${page}&limit=${limit}`).then(r => r.data);
+export const getAdminProducts = (page = 1, limit = 100) =>
+    api.get(`/products?page=${page}&limit=${limit}&showAll=true`).then(r => r.data);
 
 export const createProduct = (data) =>
     api.post('/products', data).then(r => r.data);
@@ -43,7 +43,7 @@ export const getAdminStats = async () => {
 
     const allOrders = orders.data?.orders || [];
     return {
-        totalProducts: products.data?.pagination?.total || 0,
+        totalProducts: products.pagination?.total || 0,
         totalCategories: Array.isArray(categories.data) ? categories.data.length : 0,
         totalOrders: orders.data?.pagination?.total || 0,
         pendingOrders: allOrders.filter(o => o.status === 'pending').length

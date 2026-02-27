@@ -5,39 +5,63 @@ import { useNavigate } from 'react-router-dom';
 import './Cart.css';
 
 const AddToCartButton = ({ product }) => {
-  const [isAdding, setIsAdding] = useState(false);
-  const { addToCart } = useCart();
+  const [loading, setLoading] = useState(false);
+  const { cart, addToCart, updateQuantity, removeItem } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const handleAddToCart = async () => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
+  const cartItem = cart?.items?.find(
+    (i) => (i.product?._id || i.product) === product._id
+  );
+  const qty = cartItem?.quantity || 0;
 
-    if (product.stock === 0) {
-      return;
-    }
-
-    setIsAdding(true);
-    try {
-      await addToCart(product._id, 1);
-    } catch (error) {
-      // Error already handled in CartContext with toast
-      console.error('Failed to add to cart:', error);
-    } finally {
-      setIsAdding(false);
-    }
+  const handle = async (fn) => {
+    setLoading(true);
+    try { await fn(); }
+    catch { /* errors toasted by CartContext */ }
+    finally { setLoading(false); }
   };
+
+  if (product.stock === 0) {
+    return (
+      <button disabled className="btn btn-primary add-to-cart-btn" style={{ opacity: 0.5 }}>
+        Out of Stock
+      </button>
+    );
+  }
+
+  if (qty > 0) {
+    return (
+      <div className="qty-stepper">
+        <button
+          className="qty-btn"
+          onClick={() => handle(() => qty === 1 ? removeItem(product._id) : updateQuantity(product._id, qty - 1))}
+          disabled={loading}
+          aria-label="Decrease"
+        >−</button>
+        <div className="qty-divider" />
+        <span className="qty-value">{qty}</span>
+        <div className="qty-divider" />
+        <button
+          className="qty-btn"
+          onClick={() => handle(() => updateQuantity(product._id, qty + 1))}
+          disabled={loading || qty >= product.stock}
+          aria-label="Increase"
+        >+</button>
+      </div>
+    );
+  }
 
   return (
     <button
-      onClick={handleAddToCart}
-      disabled={product.stock === 0 || isAdding}
+      onClick={() => {
+        if (!isAuthenticated) { navigate('/login'); return; }
+        handle(() => addToCart(product._id, 1));
+      }}
+      disabled={loading}
       className="btn btn-primary add-to-cart-btn"
     >
-      {isAdding ? 'Adding...' : product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+      {loading ? 'Adding...' : 'Add to Cart'}
     </button>
   );
 };
