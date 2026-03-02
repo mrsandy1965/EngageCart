@@ -120,23 +120,76 @@ cd backend  && npm test -- --coverage
 
 ---
 
-## ⚙️ CI/CD Pipeline
+## 🚀 Deployment
 
-5 jobs run on every push and PR:
+| Service | What | Free tier |
+|---------|------|-----------|
+| [**Render**](https://render.com) | Node.js backend + Socket.io | 750 hrs/month |
+| [**Vercel**](https://vercel.com) | React/Vite frontend | Unlimited static |
+| [**MongoDB Atlas**](https://cloud.mongodb.com) | Database | 512 MB |
+
+### 1. Backend — Render
+
+1. Go to [render.com](https://render.com) → **New → Blueprint**
+2. Connect your GitHub repo — Render will auto-detect `render.yaml`
+3. Set the following **Environment Variables** in the Render dashboard (Settings → Environment):
 
 ```
-backend-lint ──→ backend-test (Node 18 + Node 20)
-                      └─ uploads coverage artifact
-
-frontend-lint ──→ frontend-test ──→ frontend-build
-                        └─ uploads coverage artifact
+MONGO_URI         = mongodb+srv://...   ← from MongoDB Atlas
+JWT_SECRET        = a_long_random_string
+CLOUDINARY_CLOUD_NAME / API_KEY / API_SECRET
+FRONTEND_URL      = https://your-app.vercel.app
 ```
 
-- Build only runs if **lint + tests both pass**
-- Backend matrix tested on **Node 18 and Node 20**
-- Coverage reports saved as **GitHub Actions artifacts** (7-day retention)
+4. Copy the **Deploy Hook URL** (Settings → Deploy Hook) → add as `RENDER_DEPLOY_HOOK_URL` in GitHub Secrets
+
+> **Tip:** To prevent the free-tier cold start (30s spin-up), add your Render URL to [UptimeRobot](https://uptimerobot.com) with a 10-minute ping interval — it's free.
 
 ---
+
+### 2. Frontend — Vercel
+
+1. Go to [vercel.com](https://vercel.com) → **New Project** → import your repo
+2. Set **Root Directory** to `frontend`
+3. Add environment variables:
+
+```
+VITE_API_URL    = https://engagecart-api.onrender.com/api
+VITE_SOCKET_URL = https://engagecart-api.onrender.com
+```
+
+4. Deploy → copy your Vercel URL → set it as `FRONTEND_URL` in Render
+
+---
+
+### 3. GitHub Secrets (for auto-deploy on push)
+
+Go to **GitHub → Settings → Secrets → Actions** and add:
+
+| Secret | Value |
+|--------|-------|
+| `RENDER_DEPLOY_HOOK_URL` | Render deploy hook URL |
+| `VERCEL_TOKEN` | Vercel API token ([get it here](https://vercel.com/account/tokens)) |
+| `VITE_API_URL` | `https://your-app.onrender.com/api` |
+| `VITE_SOCKET_URL` | `https://your-app.onrender.com` |
+
+---
+
+## ⚙️ CI/CD Pipeline
+
+Two workflows run on every push to `main`:
+
+**`ci.yml`** — runs on every push & PR:
+```
+backend-lint → backend-test (Node 18 + Node 20) → coverage artifact
+frontend-lint → frontend-test → frontend-build  → coverage artifact
+```
+
+**`deploy.yml`** — runs only on push to `main`:
+```
+deploy-backend  → triggers Render via deploy hook
+deploy-frontend → deploys to Vercel via CLI
+```
 
 ## 📁 Project Structure
 
