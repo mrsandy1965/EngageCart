@@ -1,105 +1,171 @@
 /**
- * Product Controller Unit Tests
- * 
- * Note: These are basic unit tests. For full integration tests,
- * you would need to set up a test database (MongoDB Memory Server).
+ * Product Controller — Unit Tests (with chained Mongoose mocks)
  */
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+
+jest.unstable_mockModule('../src/models/product.model.js', () => ({
+    default: {
+        create: jest.fn(),
+        find: jest.fn(),
+        findById: jest.fn(),
+        findByIdAndUpdate: jest.fn(),
+        countDocuments: jest.fn(),
+    },
+}));
+
+const { default: Product } = await import('../src/models/product.model.js');
+const {
+    createProduct,
+    getAllProducts,
+    getProductById,
+    deleteProduct,
+} = await import('../src/controllers/product.controller.js');
+
+const mockRes = () => ({
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+});
+
+/** Build a mock query chain for Product.find().sort().skip().limit().pop().pop() */
+const chainMock = (resolvedValue) => {
+    // getAllProducts: find().sort().skip().limit().populate().populate()
+    // The SECOND populate() must resolve directly
+    const firstPop = {
+        populate: jest.fn().mockResolvedValue(resolvedValue),
+    };
+    return {
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        populate: jest.fn().mockReturnValue(firstPop),
+    };
+};
+
+/** 3-level populate chain for getProductById: .pop().pop().pop() */
+const triplePopChain = (resolvedValue) => ({
+    populate: jest.fn().mockReturnValue({
+        populate: jest.fn().mockReturnValue({
+            populate: jest.fn().mockResolvedValue(resolvedValue),
+        }),
+    }),
+});
 
 describe('Product Controller', () => {
+    beforeEach(() => jest.clearAllMocks());
+
+    // ── createProduct ─────────────────────────────────────────
     describe('createProduct', () => {
-        it('should be defined', () => {
-            expect(true).toBe(true);
+        it('creates product and returns 201', async () => {
+            const req = {
+                user: { id: 'admin1' },
+                body: { name: 'Watch', description: 'Nice watch', price: 299, category: 'cat1', stock: 10 },
+            };
+            const res = mockRes();
+            const created = { _id: 'p1', ...req.body };
+            Product.create.mockResolvedValue(created);
+
+            await createProduct(req, res);
+
+            expect(Product.create).toHaveBeenCalledWith(expect.objectContaining({ name: 'Watch', price: 299 }));
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+        });
+
+        it('returns 500 on DB error', async () => {
+            const req = { user: { id: 'admin1' }, body: { name: 'Fail' } };
+            const res = mockRes();
+            Product.create.mockRejectedValue(new Error('DB error'));
+
+            await createProduct(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
         });
     });
 
+    // ── getAllProducts ─────────────────────────────────────────
     describe('getAllProducts', () => {
-        it('should support pagination parameters', () => {
-            const mockQuery = {
-                page: '2',
-                limit: '10'
-            };
-            const pageNum = parseInt(mockQuery.page, 10);
-            const limitNum = parseInt(mockQuery.limit, 10);
-            const skip = (pageNum - 1) * limitNum;
+        it('returns products with pagination', async () => {
+            const fakeProducts = [{ _id: 'p1', name: 'Watch' }];
+            Product.find.mockReturnValue(chainMock(fakeProducts));
+            Product.countDocuments.mockResolvedValue(1);
 
-            expect(pageNum).toBe(2);
-            expect(limitNum).toBe(10);
-            expect(skip).toBe(10);
+            const req = { query: { page: '1', limit: '10' } };
+            const res = mockRes();
+
+            await getAllProducts(req, res);
+
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: true, data: fakeProducts })
+            );
         });
 
-        it('should support sorting parameters', () => {
-            const sort = '-price,name';
-            const sortFields = sort.split(',');
-            const sortOptions = {};
+        it('filters by category when provided', async () => {
+            Product.find.mockReturnValue(chainMock([]));
+            Product.countDocuments.mockResolvedValue(0);
 
-            sortFields.forEach(field => {
-                if (field.startsWith('-')) {
-                    sortOptions[field.substring(1)] = -1;
-                } else {
-                    sortOptions[field] = 1;
-                }
-            });
+            const req = { query: { category: 'cat123' } };
+            const res = mockRes();
 
-            expect(sortOptions).toEqual({ price: -1, name: 1 });
-        });
+            await getAllProducts(req, res);
 
-        it('should build filter for price range', () => {
-            const filter = {};
-            const minPrice = '100';
-            const maxPrice = '500';
-
-            if (minPrice || maxPrice) {
-                filter.price = {};
-                if (minPrice) filter.price.$gte = parseFloat(minPrice);
-                if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
-            }
-
-            expect(filter.price.$gte).toBe(100);
-            expect(filter.price.$lte).toBe(500);
+            expect(Product.find).toHaveBeenCalledWith(
+                expect.objectContaining({ category: 'cat123' })
+            );
         });
     });
 
-    describe('Validation', () => {
-        it('should validate required product fields', () => {
-            const product = {
-                name: 'Test Product',
-                description: 'A test product description',
-                price: 99.99,
-                category: 'electronics'
-            };
+    // ── getProductById ────────────────────────────────────────
+    describe('getProductById', () => {
+        it('returns product when found', async () => {
+            const product = { _id: 'p1', name: 'Watch' };
+            // getProductById: .findById().populate().populate().populate()
+            Product.findById.mockReturnValue(triplePopChain(product));
 
-            expect(product.name).toBeTruthy();
-            expect(product.description).toBeTruthy();
-            expect(product.price).toBeGreaterThan(0);
-            expect(product.category).toBeTruthy();
+            const req = { params: { id: 'p1' } };
+            const res = mockRes();
+
+            await getProductById(req, res);
+
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: product }));
         });
 
-        it('should reject negative prices', () => {
-            const price = -10;
-            expect(price).toBeLessThan(0);
-        });
+        it('returns 404 when not found', async () => {
+            Product.findById.mockReturnValue(triplePopChain(null));
 
-        it('should reject negative stock', () => {
-            const stock = -5;
-            expect(stock).toBeLessThan(0);
+            const req = { params: { id: 'missing' } };
+            const res = mockRes();
+
+            await getProductById(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
         });
     });
 
-    describe('Pagination calculation', () => {
-        it('should calculate correct number of pages', () => {
-            const total = 45;
-            const limit = 10;
-            const pages = Math.ceil(total / limit);
+    // ── deleteProduct ─────────────────────────────────────────
+    describe('deleteProduct', () => {
+        it('soft deletes product (sets isActive: false)', async () => {
+            const product = { _id: 'p1', isActive: true, save: jest.fn().mockResolvedValue(true) };
+            Product.findById.mockResolvedValue(product);
 
-            expect(pages).toBe(5);
+            const req = { params: { id: 'p1' } };
+            const res = mockRes();
+
+            await deleteProduct(req, res);
+
+            expect(product.isActive).toBe(false);
+            expect(product.save).toHaveBeenCalled();
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
 
-        it('should handle empty results', () => {
-            const total = 0;
-            const limit = 10;
-            const pages = Math.ceil(total / limit);
+        it('returns 404 for missing product', async () => {
+            Product.findById.mockResolvedValue(null);
 
-            expect(pages).toBe(0);
+            const req = { params: { id: 'missing' } };
+            const res = mockRes();
+
+            await deleteProduct(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
         });
     });
 });
