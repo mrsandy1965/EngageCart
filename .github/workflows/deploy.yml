@@ -5,42 +5,33 @@ on:
     branches: [main]
 
 jobs:
+  # Render auto-deploys via deploy hook (backend)
   deploy-backend:
     name: "Deploy → Render (Backend)"
     runs-on: ubuntu-latest
+    # Only runs if RENDER_DEPLOY_HOOK_URL secret is set
+    if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' }}
     steps:
       - name: Trigger Render deploy hook
         run: |
-          curl -s -o /dev/null -w "%{http_code}" \
-            "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
-            | grep -q "^2" && echo "✅ Render deploy triggered" || echo "❌ Render deploy failed"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
+          echo "Render response: $STATUS"
+          if [[ "$STATUS" =~ ^2 ]]; then
+            echo "✅ Render deploy triggered successfully"
+          else
+            echo "❌ Render deploy hook returned $STATUS"
+            exit 1
+          fi
 
-  deploy-frontend:
-    name: "Deploy → Vercel (Frontend)"
+  # Vercel handles frontend deploys via its GitHub integration.
+  # No CLI job needed — connect your repo at vercel.com → New Project.
+  # This job just prints a reminder if the integration isn't set up yet.
+  frontend-info:
+    name: "Frontend → Vercel (via GitHub integration)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
-
-      - name: Install frontend dependencies
-        run: npm ci
-        working-directory: frontend
-
-      - name: Deploy to Vercel (Production)
+      - name: Vercel integration note
         run: |
-          vercel deploy \
-            --prod \
-            --token "${{ secrets.VERCEL_TOKEN }}" \
-            --yes \
-            -e VITE_API_URL="${{ secrets.VITE_API_URL }}" \
-            -e VITE_SOCKET_URL="${{ secrets.VITE_SOCKET_URL }}"
-        working-directory: frontend
+          echo "✅ Frontend is deployed by Vercel's GitHub integration."
+          echo "   If not connected yet, go to https://vercel.com → New Project → import this repo."
+          echo "   Set root directory to: frontend"
