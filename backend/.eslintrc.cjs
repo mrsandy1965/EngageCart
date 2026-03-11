@@ -1,10 +1,10 @@
 module.exports = {
   env: {
     node: true,
-    es2021: true,
+    es2022: true,
   },
   parserOptions: {
-    ecmaVersion: 2021,
+    ecmaVersion: 2022,
     sourceType: "module",
   },
   extends: ["eslint:recommended"],
@@ -16,6 +16,14 @@ module.exports = {
       files: ["**/*.test.js", "**/*.spec.js"],
       env: {
         jest: true,
+        es2022: true,
+      },
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: "module",
+      },
+      rules: {
+        "no-unused-vars": "off",
       },
     },
   ],
