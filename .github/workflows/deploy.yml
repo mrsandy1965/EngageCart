@@ -1,0 +1,37 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  # Render auto-deploys via deploy hook (backend)
+  deploy-backend:
+    name: "Deploy → Render (Backend)"
+    runs-on: ubuntu-latest
+    # Only runs if RENDER_DEPLOY_HOOK_URL secret is set
+    if: secrets.RENDER_DEPLOY_HOOK_URL != ''
+    steps:
+      - name: Trigger Render deploy hook
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
+          echo "Render response: $STATUS"
+          if [[ "$STATUS" =~ ^2 ]]; then
+            echo "✅ Render deploy triggered successfully"
+          else
+            echo "❌ Render deploy hook returned $STATUS"
+            exit 1
+          fi
+
+  # Vercel handles frontend deploys via its GitHub integration.
+  # No CLI job needed — connect your repo at vercel.com → New Project.
+  # This job just prints a reminder if the integration isn't set up yet.
+  frontend-info:
+    name: "Frontend → Vercel (via GitHub integration)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vercel integration note
+        run: |
+          echo "✅ Frontend is deployed by Vercel's GitHub integration."
+          echo "   If not connected yet, go to https://vercel.com → New Project → import this repo."
+          echo "   Set root directory to: frontend"

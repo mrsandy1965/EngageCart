@@ -1,22 +1,31 @@
+# render.yaml — Render deployment config for EngageCart
+# Docs: https://render.com/docs/yaml-spec
+
 services:
   - type: web
-    name: shopsmart-backend
+    name: engagecart-api
     env: node
+    region: singapore    # closest to India
     plan: free
-    buildCommand: cd server && npm install
-    startCommand: cd server && npm start
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: PORT
         value: 10000
-
-  - type: static
-    name: shopsmart-frontend
-    env: static
-    buildCommand: cd client && npm install && npm run build
-    staticPublishPath: client/dist
-    envVars:
-      - key: VITE_API_URL
-        fromService:
-          type: web
-          name: shopsmart-backend
-          property: url
+      - key: MONGO_URI
+        sync: false        # ← Set manually in Render dashboard (secret)
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false        # ← Set to your Vercel URL after deploying frontend
