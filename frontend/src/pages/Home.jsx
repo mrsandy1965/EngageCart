@@ -1,7 +1,26 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import productService from '../services/productService';
+import ProductCard from '../components/product/ProductCard';
 import './Home.css';
 
 const Home = () => {
+  const [trending, setTrending] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrending = async () => {
+      try {
+        const data = await productService.getProducts({ sort: '-createdAt', limit: 4 });
+        setTrending(data.products || []);
+      } catch (err) {
+        console.error('Failed to load trending products', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTrending();
+  }, []);
   return (
     <div className="home">
       <section className="hero">
@@ -73,6 +92,25 @@ const Home = () => {
               <p>Active Gear</p>
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="trending-products">
+        <div className="container">
+          <div className="section-header">
+            <h2>Trending Now</h2>
+            <Link to="/products?sort=-createdAt" className="link-hover">View New Arrivals →</Link>
+          </div>
+          
+          {loading ? (
+            <div className="loading-spinner"></div>
+          ) : (
+            <div className="products-grid">
+              {trending.map(product => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
       <section className="features">

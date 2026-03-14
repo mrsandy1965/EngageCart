@@ -205,6 +205,11 @@
   margin: 0;
 }
 
+.trending-products {
+  padding: 5rem 0;
+  background: #f8fafc;
+}
+
 .features {
   padding: 4rem 0;
   background: #f7fafc;
