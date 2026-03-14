@@ -44,6 +44,37 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      <section className="categories-preview">
+        <div className="container">
+          <div className="section-header">
+            <h2>Shop by Category</h2>
+            <Link to="/products" className="link-hover">View All Collections →</Link>
+          </div>
+          <div className="category-grid">
+            <Link to="/products?category=Electronics" className="category-card" style={{ '--bg': '#e0e7ff' }}>
+              <span className="category-icon">💻</span>
+              <h3>Electronics</h3>
+              <p>Gadgets & Tech</p>
+            </Link>
+            <Link to="/products?category=Clothing" className="category-card" style={{ '--bg': '#fce7f3' }}>
+              <span className="category-icon">👕</span>
+              <h3>Clothing</h3>
+              <p>Modern Apparel</p>
+            </Link>
+            <Link to="/products?category=Home" className="category-card" style={{ '--bg': '#dcfce7' }}>
+              <span className="category-icon">🏡</span>
+              <h3>Home & Garden</h3>
+              <p>Interior Decor</p>
+            </Link>
+            <Link to="/products?category=Sports" className="category-card" style={{ '--bg': '#ffedd5' }}>
+              <span className="category-icon">⚽</span>
+              <h3>Sports</h3>
+              <p>Active Gear</p>
+            </Link>
+          </div>
+        </div>
+      </section>
       <section className="features">
         <div className="container">
           <div className="features-grid">
