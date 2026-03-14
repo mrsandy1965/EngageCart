@@ -117,25 +117,45 @@ const Home = () => {
         <div className="container">
           <div className="features-grid">
             <div className="feature-card">
-              <div className="feature-icon">🛍️</div>
+              <div className="feature-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                  <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
+              </div>
               <h3>Wide Selection</h3>
               <p>Browse thousands of products across multiple categories</p>
             </div>
 
             <div className="feature-card">
-              <div className="feature-icon">⚡</div>
+              <div className="feature-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+              </div>
               <h3>Fast Delivery</h3>
               <p>Quick and reliable shipping to your doorstep</p>
             </div>
 
             <div className="feature-card">
-              <div className="feature-icon">💳</div>
+              <div className="feature-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
               <h3>Secure Payments</h3>
               <p>Safe and encrypted payment processing</p>
             </div>
 
             <div className="feature-card">
-              <div className="feature-icon">🎯</div>
+              <div className="feature-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="6"></circle>
+                  <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+              </div>
               <h3>Best Prices</h3>
               <p>Competitive pricing and regular deals</p>
             </div>
