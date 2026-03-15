@@ -116,10 +116,10 @@ const OrderDetailPage = () => {
                   <div className="order-item-details">
                     <h3>{item.name}</h3>
                     <p>Quantity: {item.quantity}</p>
-                    <p className="order-item-price">${item.price.toFixed(2)} each</p>
+                    <p className="order-item-price">₹{item.price.toFixed(2)} each</p>
                   </div>
                   <div className="order-item-total">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ₹{(item.price * item.quantity).toFixed(2)}
                   </div>
                 </div>
               ))}
@@ -162,7 +162,7 @@ const OrderDetailPage = () => {
             <div className="order-summary-box">
               <div className="summary-row">
                 <span>Subtotal</span>
-                <span>${order.totalAmount.toFixed(2)}</span>
+                <span>₹{order.totalAmount.toFixed(2)}</span>
               </div>
               <div className="summary-row">
                 <span>Shipping</span>
@@ -170,7 +170,7 @@ const OrderDetailPage = () => {
               </div>
               <div className="summary-row total">
                 <span>Total</span>
-                <span>${order.totalAmount.toFixed(2)}</span>
+                <span>₹{order.totalAmount.toFixed(2)}</span>
               </div>
             </div>
           </section>

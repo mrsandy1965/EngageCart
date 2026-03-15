@@ -46,7 +46,7 @@ const AdminOrders = () => {
               <tr key={o._id}>
                 <td>#{o._id.slice(-6).toUpperCase()}</td>
                 <td>{o.user?.name || 'N/A'}<br /><small>{o.user?.email}</small></td>
-                <td>${o.totalAmount?.toFixed(2)}</td>
+                <td>₹{o.totalAmount?.toFixed(2)}</td>
                 <td>
                   <span className={`status-badge badge-${STATUS_COLORS[o.status]}`}>
                     {o.status}

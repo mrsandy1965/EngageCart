@@ -208,7 +208,7 @@ const CheckoutPage = () => {
               disabled={submitting}
               className="btn btn-primary btn-large checkout-submit"
             >
-              {submitting ? 'Placing Order...' : `Place Order - $${cartTotal.toFixed(2)}`}
+              {submitting ? 'Placing Order...' : `Place Order - ₹${cartTotal.toFixed(2)}`}
             </button>
           </form>
 
@@ -229,7 +229,7 @@ const CheckoutPage = () => {
                     <p>Qty: {item.quantity}</p>
                   </div>
                   <div className="summary-item-price">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ₹{(item.price * item.quantity).toFixed(2)}
                   </div>
                 </div>
               ))}
@@ -238,7 +238,7 @@ const CheckoutPage = () => {
             <div className="summary-total">
               <div className="summary-row">
                 <span>Subtotal</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>₹{cartTotal.toFixed(2)}</span>
               </div>
               <div className="summary-row">
                 <span>Shipping</span>
@@ -246,7 +246,7 @@ const CheckoutPage = () => {
               </div>
               <div className="summary-row total">
                 <span>Total</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>₹{cartTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>

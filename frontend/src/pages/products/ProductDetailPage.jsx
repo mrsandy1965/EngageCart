@@ -109,7 +109,7 @@ const ProductDetailPage = () => {
           )}
 
           <div className="price-section">
-            <span className="price">${product.price?.toFixed(2)}</span>
+            <span className="price">₹{product.price?.toFixed(2)}</span>
 
             {/* Live stock badge */}
             {stock === null ? null : outOfStock ? (

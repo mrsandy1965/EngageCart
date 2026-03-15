@@ -79,7 +79,7 @@ const ProductForm = ({ product, onClose, onSaved }) => {
         <form className="admin-form" onSubmit={handleSubmit}>
           <label>Name<input required value={form.name} onChange={set('name')} /></label>
           <label>Description<textarea rows={3} value={form.description} onChange={set('description')} /></label>
-          <label>Price ($)<input type="number" min="0" step="0.01" required value={form.price} onChange={set('price')} /></label>
+          <label>Price (₹)<input type="number" min="0" step="0.01" required value={form.price} onChange={set('price')} /></label>
           <label>Stock<input type="number" min="0" required value={form.stock} onChange={set('stock')} /></label>
           <label>
             Category

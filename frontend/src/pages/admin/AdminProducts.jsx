@@ -51,7 +51,7 @@ const AdminProducts = () => {
               <tr key={p._id}>
                 <td>{p.name}</td>
                 <td>{p.category?.name || p.category || '—'}</td>
-                <td>${p.price?.toFixed(2)}</td>
+                <td>₹{p.price?.toFixed(2)}</td>
                 <td>
                   <span className={`status-badge ${p.stock === 0 ? 'badge-cancelled' : p.stock <= 5 ? 'badge-pending' : 'badge-delivered'}`}>
                     {p.stock}

@@ -82,7 +82,7 @@ const CartPage = () => {
                       {item.product.category.name || item.product.category}
                     </span>
                   )}
-                  <p className="cart-item-price">${item.price.toFixed(2)}</p>
+                  <p className="cart-item-price">₹{item.price.toFixed(2)}</p>
                 </div>
 
                 <div className="cart-item-actions">
@@ -105,7 +105,7 @@ const CartPage = () => {
                   </div>
 
                   <p className="item-subtotal">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ₹{(item.price * item.quantity).toFixed(2)}
                   </p>
 
                   <button
@@ -124,12 +124,12 @@ const CartPage = () => {
             
             <div className="summary-row">
               <span>Items ({cart.totalItems})</span>
-              <span>${cartTotal.toFixed(2)}</span>
+              <span>₹{cartTotal.toFixed(2)}</span>
             </div>
 
             <div className="summary-row total">
               <span>Total</span>
-              <span>${cartTotal.toFixed(2)}</span>
+              <span>₹{cartTotal.toFixed(2)}</span>
             </div>
 
             <button onClick={() => navigate('/checkout')} className="btn btn-primary btn-large checkout-btn">

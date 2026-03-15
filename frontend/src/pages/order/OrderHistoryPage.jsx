@@ -112,7 +112,7 @@ const OrderHistoryPage = () => {
 
                 <div className="order-summary">
                   <p>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</p>
-                  <p className="order-total">${order.totalAmount.toFixed(2)}</p>
+                  <p className="order-total">₹{order.totalAmount.toFixed(2)}</p>
                 </div>
               </div>
 

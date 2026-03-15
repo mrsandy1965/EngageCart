@@ -56,7 +56,7 @@ const Home = () => {
                 <div className="icon">🚀</div>
                 <div className="text">
                   <strong>Free Shipping</strong>
-                  <span>On orders over $50</span>
+                  <span>On orders over ₹500</span>
                 </div>
               </div>
             </div>
