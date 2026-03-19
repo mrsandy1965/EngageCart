@@ -1,6 +1,6 @@
 # EngageCart 🛒
 
-> Interactive e-commerce platform with real-time inventory, dynamic cart UX, and a full admin dashboard.
+> Interactive e-commerce platform with real-time inventory, dynamic cart UX, modern glassmorphism UI, and a full admin dashboard.
 
 [![CI Pipeline](https://github.com/mrsandy1965/EngageCart/actions/workflows/ci.yml/badge.svg)](https://github.com/mrsandy1965/EngageCart/actions/workflows/ci.yml)
 
@@ -9,11 +9,13 @@
 ## ✨ Features
 
 ### 🛍️ Shopping Experience
-- **Product catalogue** — search, filter by category / price range, pagination
-- **Product detail page** — image gallery, live stock badge, viewer count
-- **Add to Cart → Qty Stepper** — button transforms seamlessly into `− qty +` stepper after first add, no layout shift
-- **Real-time inventory** — WebSocket (Socket.io) pushes live stock updates across tabs
-- **Urgency alerts** — "Only X left!", live viewer bubble, back-in-stock toast
+- **Modern Storefront** — Redesigned home page with split-hero layout, gradient typography, and featured categories.
+- **Product catalogue** — search, filter by category / price range (₹), pagination.
+- **Product detail page** — image gallery, live stock badge, viewer count.
+- **Add to Cart → Qty Stepper** — button transforms seamlessly into `− qty +` stepper after first add, no layout shift.
+- **Real-time inventory** — WebSocket (Socket.io) pushes live stock updates across tabs.
+- **Urgency alerts** — "Only X left!", live viewer bubble, back-in-stock toast.
+- **Premium UI** — SVG icons (Phosphor/Lucide style), glassmorphism header, and 'Plus Jakarta Sans' branding.
 
 ### 🛒 Cart & Checkout
 - Persistent cart (user-scoped, server-side)
