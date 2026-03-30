@@ -5,6 +5,8 @@ dotenv.config();
 import app from './app.js';
 import connectDB from './config/db.js';
 import { initSocket } from './socket.js';
+import { initBackendErrorTracking, captureBackendError } from './config/errorTracking.js';
+import logger from './utils/logger.js';
 
 // Import routes
 import authRoutes from './routes/auth.routes.js';
@@ -16,6 +18,8 @@ import orderRoutes from './routes/order.routes.js';
 import inventoryRoutes from './routes/inventory.routes.js';
 
 const PORT = process.env.PORT || 5001;
+
+initBackendErrorTracking();
 
 // Connect to database
 connectDB();
@@ -36,7 +40,20 @@ app.get('/api/health', (_req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    captureBackendError(err, {
+        route: req.originalUrl,
+        method: req.method
+    });
+
+    logger.error(
+        {
+            route: req.originalUrl,
+            method: req.method,
+            stack: err.stack
+        },
+        'Unhandled backend error'
+    );
+
     res.status(500).json({
         message: 'Something went wrong!',
         error: process.env.NODE_ENV === 'development' ? err.message : undefined
@@ -53,8 +70,8 @@ const httpServer = createServer(app);
 initSocket(httpServer);
 
 httpServer.listen(PORT, () => {
-    console.log(`🚀 Backend running on port ${PORT}`);
-    console.log(`🔌 WebSocket server ready`);
+    logger.info({ port: PORT }, 'Backend server running');
+    logger.info('WebSocket server ready');
 });
 
 export default app;
