@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { captureFrontendError } from './errorTracking';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -28,6 +29,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
+        captureFrontendError(error, {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response?.status
+        });
+
         if (error.response?.status === 401) {
             // Token expired or invalid
             localStorage.removeItem('token');
