@@ -1,11 +1,10 @@
-FROM node:20-alpine
+FROM node:22-alpine AS Builder
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
-
 COPY . .
+RUN npm ci
+RUN npm run build
 
 EXPOSE 5173
 

@@ -61,12 +61,12 @@ describe('POST /api/auth/register', () => {
         expect(res.body.message).toBe('User already exists');
     });
 
-    it('returns 500 when required fields are missing', async () => {
+    it('returns 400 when required fields are missing', async () => {
         const res = await request(testApp)
             .post('/api/auth/register')
             .send({ email: 'noname@example.com' });   // missing name & password
 
-        expect(res.status).toBeGreaterThanOrEqual(400);
+        expect(res.status).toBe(400);
     });
 });
 

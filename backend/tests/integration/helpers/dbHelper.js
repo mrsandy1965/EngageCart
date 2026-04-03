@@ -31,7 +31,16 @@ export async function clearTestDB() {
  * Disconnect Mongoose and stop the in-memory server after all tests.
  */
 export async function closeTestDB() {
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongod.stop();
+    if (mongoose.connection.readyState !== 0) {
+        await mongoose.connection.dropDatabase();
+        await mongoose.connection.close();
+    }
+
+    if (mongod && typeof mongod.stop === 'function') {
+        try {
+            await mongod.stop();
+        } catch (_err) {
+            // Ignore shutdown errors in test teardown to avoid masking test results.
+        }
+    }
 }
