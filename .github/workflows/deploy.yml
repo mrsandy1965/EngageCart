@@ -5,16 +5,20 @@ on:
     branches: [main]
 
 jobs:
-  # Render auto-deploys via deploy hook (backend)
+  # ── Backend → Render ─────────────────────────────────────────────
   deploy-backend:
     name: "Deploy → Render (Backend)"
     runs-on: ubuntu-latest
-    # Only runs if RENDER_DEPLOY_HOOK_URL secret is set
-    if: secrets.RENDER_DEPLOY_HOOK_URL != ''
     steps:
       - name: Trigger Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "⚠️  RENDER_DEPLOY_HOOK_URL secret not set — skipping Render deploy"
+            exit 0
+          fi
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$RENDER_DEPLOY_HOOK_URL")
           echo "Render response: $STATUS"
           if [[ "$STATUS" =~ ^2 ]]; then
             echo "✅ Render deploy triggered successfully"
@@ -23,15 +27,43 @@ jobs:
             exit 1
           fi
 
-  # Vercel handles frontend deploys via its GitHub integration.
-  # No CLI job needed — connect your repo at vercel.com → New Project.
-  # This job just prints a reminder if the integration isn't set up yet.
+  # ── Backend → EC2 via SSH ────────────────────────────────────────
+  deploy-ec2:
+    name: "Deploy → EC2 (SSH)"
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "🚀 Starting deployment on EC2..."
+
+            # Pull latest code (idempotent)
+            cd /home/ubuntu/EngageCart || { echo "❌ App directory not found"; exit 1; }
+            git pull origin main
+
+            # Install backend dependencies (idempotent)
+            cd backend
+            npm ci --omit=dev
+
+            # Restart backend with PM2 (idempotent — pm2 restart is safe to re-run)
+            pm2 restart engagecart-backend || pm2 start src/index.js --name engagecart-backend
+
+            echo "✅ EC2 deployment complete"
+
+  # ── Frontend → Vercel ────────────────────────────────────────────
+  # Vercel auto-deploys via GitHub integration — no CLI step needed.
   frontend-info:
     name: "Frontend → Vercel (via GitHub integration)"
     runs-on: ubuntu-latest
     steps:
       - name: Vercel integration note
         run: |
-          echo "✅ Frontend is deployed by Vercel's GitHub integration."
-          echo "   If not connected yet, go to https://vercel.com → New Project → import this repo."
+          echo "✅ Frontend is deployed automatically by Vercel's GitHub integration."
+          echo "   If not connected yet: vercel.com → New Project → import this repo."
           echo "   Set root directory to: frontend"
