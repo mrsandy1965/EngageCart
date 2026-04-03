@@ -46,15 +46,14 @@ categorySchema.virtual('children', {
     foreignField: 'parent'
 });
 
-// Generate slug from name before saving
-categorySchema.pre('save', function (next) {
+// Generate slug from name before saving (Mongoose 7+ async style — no next())
+categorySchema.pre('save', async function () {
     if (this.isModified('name') && !this.slug) {
         this.slug = this.name
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-|-$/g, '');
     }
-    next();
 });
 
 // Indexes
