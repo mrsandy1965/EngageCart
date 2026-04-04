@@ -51,7 +51,7 @@
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js ≥ 18
+- Node.js 20+ (Node 22 LTS recommended)
 - MongoDB (local or Atlas)
 - Cloudinary account (for image uploads)
 
@@ -89,10 +89,10 @@ npm run seed
 
 ### Run tests
 ```bash
-# Backend (39 tests across 6 suites)
+# Backend
 cd backend && npm test
 
-# Frontend (27 tests across 4 suites)
+# Frontend
 cd frontend && npm test
 
 # With coverage report
@@ -171,9 +171,13 @@ Go to **GitHub → Settings → Secrets → Actions** and add:
 | Secret | Value |
 |--------|-------|
 | `RENDER_DEPLOY_HOOK_URL` | Render deploy hook URL |
-| `VERCEL_TOKEN` | Vercel API token ([get it here](https://vercel.com/account/tokens)) |
 | `VITE_API_URL` | `https://your-app.onrender.com/api` |
 | `VITE_SOCKET_URL` | `https://your-app.onrender.com` |
+| `EC2_HOST` *(optional)* | EC2 public host/IP for SSH deploy |
+| `EC2_USER` *(optional)* | EC2 SSH username |
+| `EC2_PRIVATE_KEY` *(optional)* | Private key for EC2 SSH deploy |
+
+> If EC2 secrets are not set, the EC2 deploy job is skipped safely.
 
 ---
 
@@ -189,9 +193,16 @@ frontend-lint → frontend-test → frontend-build  → coverage artifact
 
 **`deploy.yml`** — runs only on push to `main`:
 ```
-deploy-backend  → triggers Render via deploy hook
-deploy-frontend → deploys to Vercel via CLI
+deploy-backend → triggers Render via deploy hook
+deploy-ec2     → deploys backend via SSH only when EC2 secrets exist
+frontend-info  → reminder that Vercel deploys via GitHub integration
 ```
+
+## 🐳 Docker Notes
+
+- Backend Docker image uses `node:22-alpine` and starts with `npm start`.
+- Frontend Docker image uses `node:22-alpine`, installs dependencies via `npm ci`, and builds the app with `npm run build`.
+
 
 ## 📁 Project Structure
 
