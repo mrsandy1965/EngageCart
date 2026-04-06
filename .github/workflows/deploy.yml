@@ -52,27 +52,3 @@ jobs:
         run: |
           echo "⚠️ EC2 deployment skipped."
           echo "   Required secrets: EC2_HOST, EC2_USER, EC2_PRIVATE_KEY"
-
-  # ── Backend → Railway ────────────────────────────────────────────
-  # Railway auto-deploys via GitHub integration — no CLI step needed.
-  backend-info:
-    name: "Backend → Railway (via GitHub integration)"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Railway integration note
-        run: |
-          echo "✅ Backend is deployed automatically by Railway's GitHub integration."
-          echo "   If not connected yet: railway.app → New Project → Deploy from GitHub repo."
-          echo "   Set root directory to: backend"
-
-  # ── Frontend → Vercel ────────────────────────────────────────────
-  # Vercel auto-deploys via GitHub integration — no CLI step needed.
-  frontend-info:
-    name: "Frontend → Vercel (via GitHub integration)"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Vercel integration note
-        run: |
-          echo "✅ Frontend is deployed automatically by Vercel's GitHub integration."
-          echo "   If not connected yet: vercel.com → New Project → import this repo."
-          echo "   Set root directory to: frontend"

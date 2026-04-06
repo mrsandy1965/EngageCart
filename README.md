@@ -126,15 +126,15 @@ cd backend  && npm test -- --coverage
 
 | Service | What | Free tier |
 |---------|------|-----------|
-| [**Render**](https://render.com) | Node.js backend + Socket.io | 750 hrs/month |
+| [**Railway**](https://railway.app) | Node.js backend + Socket.io | 500 hrs/month (Starter tier) |
 | [**Vercel**](https://vercel.com) | React/Vite frontend | Unlimited static |
 | [**MongoDB Atlas**](https://cloud.mongodb.com) | Database | 512 MB |
 
-### 1. Backend — Render
+### 1. Backend — Railway
 
-1. Go to [render.com](https://render.com) → **New → Blueprint**
-2. Connect your GitHub repo — Render will auto-detect `render.yaml`
-3. Set the following **Environment Variables** in the Render dashboard (Settings → Environment):
+1. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
+2. Select your repository and set the **Root Directory** to `backend`
+3. Set the following **Environment Variables** in the Railway dashboard (Variables tab):
 
 ```
 MONGO_URI         = mongodb+srv://...   ← from MongoDB Atlas
@@ -143,9 +143,7 @@ CLOUDINARY_CLOUD_NAME / API_KEY / API_SECRET
 FRONTEND_URL      = https://your-app.vercel.app
 ```
 
-4. Copy the **Deploy Hook URL** (Settings → Deploy Hook) → add as `RENDER_DEPLOY_HOOK_URL` in GitHub Secrets
-
-> **Tip:** To prevent the free-tier cold start (30s spin-up), add your Render URL to [UptimeRobot](https://uptimerobot.com) with a 10-minute ping interval — it's free.
+4. Railway will automatically deploy on every push to the main branch.
 
 ---
 
@@ -156,11 +154,11 @@ FRONTEND_URL      = https://your-app.vercel.app
 3. Add environment variables:
 
 ```
-VITE_API_URL    = https://engagecart-api.onrender.com/api
-VITE_SOCKET_URL = https://engagecart-api.onrender.com
+VITE_API_URL    = https://engagecart-api.up.railway.app/api
+VITE_SOCKET_URL = https://engagecart-api.up.railway.app
 ```
 
-4. Deploy → copy your Vercel URL → set it as `FRONTEND_URL` in Render
+4. Deploy → copy your Vercel URL → set it as `FRONTEND_URL` in Railway
 
 ---
 
@@ -170,9 +168,8 @@ Go to **GitHub → Settings → Secrets → Actions** and add:
 
 | Secret | Value |
 |--------|-------|
-| `RENDER_DEPLOY_HOOK_URL` | Render deploy hook URL |
-| `VITE_API_URL` | `https://your-app.onrender.com/api` |
-| `VITE_SOCKET_URL` | `https://your-app.onrender.com` |
+| `VITE_API_URL` | `https://your-app.up.railway.app/api` |
+| `VITE_SOCKET_URL` | `https://your-app.up.railway.app` |
 | `EC2_HOST` *(optional)* | EC2 public host/IP for SSH deploy |
 | `EC2_USER` *(optional)* | EC2 SSH username |
 | `EC2_PRIVATE_KEY` *(optional)* | Private key for EC2 SSH deploy |
@@ -187,15 +184,13 @@ Two workflows run on every push to `main`:
 
 **`ci.yml`** — runs on every push & PR:
 ```
-backend-lint → backend-test (Node 18 + Node 20) → coverage artifact
-frontend-lint → frontend-test → frontend-build  → coverage artifact
+backend-lint → backend-test (Node 18 + Node 20)
+frontend-lint → frontend-test → frontend-build
 ```
 
 **`deploy.yml`** — runs only on push to `main`:
 ```
-deploy-backend → triggers Render via deploy hook
 deploy-ec2     → deploys backend via SSH only when EC2 secrets exist
-frontend-info  → reminder that Vercel deploys via GitHub integration
 ```
 
 ## 🐳 Docker Notes

@@ -54,18 +54,10 @@ jobs:
         working-directory: backend
 
       - name: Run tests with coverage
-        run: npm test -- --coverage --coverageReporters=lcov --coverageReporters=text
+        run: npm run test 
         working-directory: backend
         env:
           NODE_ENV: test
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        if: matrix.node == '20'
-        with:
-          name: backend-coverage
-          path: backend/coverage/lcov.info
-          retention-days: 7
 
   # ── Frontend Jobs ───────────────────────────────────────────────
   frontend-lint:
@@ -110,17 +102,10 @@ jobs:
         working-directory: frontend
 
       - name: Run tests with coverage
-        run: npm run test:coverage -- --coverageReporters=lcov --coverageReporters=text
+        run: npm run test
         working-directory: frontend
         env:
           NODE_ENV: test
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-coverage
-          path: frontend/coverage/lcov.info
-          retention-days: 7
 
   frontend-build:
     name: "Frontend › Build"
