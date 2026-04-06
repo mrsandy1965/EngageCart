@@ -60,7 +60,7 @@ jobs:
           NODE_ENV: test
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: matrix.node == '20'
         with:
           name: backend-coverage
@@ -116,7 +116,7 @@ jobs:
           NODE_ENV: test
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-coverage
           path: frontend/coverage/lcov.info
