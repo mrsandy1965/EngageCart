@@ -1,0 +1,13 @@
+services:
+  backend:
+    image: mrsandy1965/backend:v1
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5001:5001"
+  frontend:
+    image: mrsandy1965/frontend:v2
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "5173:5173"
