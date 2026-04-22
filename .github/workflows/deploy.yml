@@ -52,3 +52,145 @@ jobs:
         run: |
           echo "⚠️ EC2 deployment skipped."
           echo "   Required secrets: EC2_HOST, EC2_USER, EC2_PRIVATE_KEY"
+
+  # ── Backend → ECS (Fargate) ──────────────────────────────────────
+  deploy-ecs-backend:
+    name: "Deploy Backend → AWS ECS"
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Check AWS secret availability
+        id: aws-secrets
+        run: |
+          if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout code
+        if: steps.aws-secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        if: steps.aws-secrets.outputs.ready == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        if: steps.aws-secrets.outputs.ready == 'true'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR (Backend)
+        if: steps.aws-secrets.outputs.ready == 'true'
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: engagecart-backend
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: ./backend
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        if: steps.aws-secrets.outputs.ready == 'true'
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: backend/task-definition.json
+          container-name: engagecart-backend-container
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        if: steps.aws-secrets.outputs.ready == 'true'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: engagecart-backend-service
+          cluster: engagecart-cluster
+          wait-for-service-stability: true
+
+      - name: Missing AWS secrets note
+        if: steps.aws-secrets.outputs.ready != 'true'
+        run: |
+          echo "⚠️ ECS Backend deployment skipped."
+          echo "   Required secrets: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY"
+
+  # ── Frontend → ECS (Fargate) ─────────────────────────────────────
+  deploy-ecs-frontend:
+    name: "Deploy Frontend → AWS ECS"
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Check AWS secret availability
+        id: aws-secrets
+        run: |
+          if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout code
+        if: steps.aws-secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        if: steps.aws-secrets.outputs.ready == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        if: steps.aws-secrets.outputs.ready == 'true'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR (Frontend)
+        if: steps.aws-secrets.outputs.ready == 'true'
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: engagecart-frontend
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: ./frontend
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        if: steps.aws-secrets.outputs.ready == 'true'
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: frontend/task-definition.json
+          container-name: engagecart-frontend-container
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        if: steps.aws-secrets.outputs.ready == 'true'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: engagecart-frontend-service
+          cluster: engagecart-cluster
+          wait-for-service-stability: true
+
+      - name: Missing AWS secrets note
+        if: steps.aws-secrets.outputs.ready != 'true'
+        run: |
+          echo "⚠️ ECS Frontend deployment skipped."
+          echo "   Required secrets: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY"
