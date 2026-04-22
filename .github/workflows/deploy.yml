@@ -110,6 +110,14 @@ jobs:
           task-definition: backend/task-definition.json
           container-name: engagecart-backend-container
           image: ${{ steps.build-image.outputs.image }}
+          environment-variables: |
+            MONGO_URI=${{ secrets.MONGO_URI }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+            CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+            CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
+            PORT=5001
+            NODE_ENV=production
 
       - name: Deploy Amazon ECS task definition
         if: steps.aws-secrets.outputs.ready == 'true'
@@ -169,9 +177,14 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: engagecart-frontend
           IMAGE_TAG: ${{ github.sha }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_SOCKET_URL: ${{ secrets.VITE_SOCKET_URL }}
         working-directory: ./frontend
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build \
+            --build-arg VITE_API_URL=$VITE_API_URL \
+            --build-arg VITE_SOCKET_URL=$VITE_SOCKET_URL \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
