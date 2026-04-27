@@ -121,7 +121,7 @@ jobs:
 
       - name: Deploy Amazon ECS task definition
         if: steps.aws-secrets.outputs.ready == 'true'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: engagecart-backend-service
@@ -199,7 +199,7 @@ jobs:
 
       - name: Deploy Amazon ECS task definition
         if: steps.aws-secrets.outputs.ready == 'true'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: engagecart-frontend-service
